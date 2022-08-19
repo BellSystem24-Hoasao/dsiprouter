@@ -10,6 +10,8 @@
         ssl_certificate         /etc/ssl/certs/cert_combined.crt;
         ssl_certificate_key     /etc/ssl/certs/cert.key;
 
+        ##DOMAINREDIRECTS##
+
         location /provision/ {
             proxy_pass https://fusionpbx;
             proxy_redirect off;

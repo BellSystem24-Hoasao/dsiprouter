@@ -1,5 +1,6 @@
 import os, psycopg2, hashlib, MySQLdb, subprocess, docker
-from database import dSIPMultiDomainMapping
+from database import SessionLoader, DummySession, Domain, DomainAttrs, dSIPDomainMapping, dSIPMultiDomainMapping, Dispatcher, Gateways, Address
+from sqlalchemy import case, func, exc as sql_exceptions
 from util.security import AES_CTR
 from shared import safeUriToHost
 
@@ -249,13 +250,43 @@ def update_nginx(sources):
     for source in sources:
         serverList += "server " + safeUriToHost(str(source)) + ":443;\n"
 
+    #Generate the nginx domain list
+
+    domain_redirect_list = ""
+
+    location_template = """
+          location /DOMAIN/ {
+                  rewrite ^/DOMAIN(.*)$ /app/$1 break;
+                  proxy_pass http://DOMAIN;
+                  proxy_set_header Host DOMAIN;
+          }
+
+    """
+
+    db = DummySession()
+
+    try:
+        db = SessionLoader()
+        sql1 = "select distinct domain from domain order by 1;"
+        res = db.execute(sql1)
+
+        for row in res:
+            domain_redirect_list = domain_redirect_list + location_template.replace("DOMAIN", row['domain'])
+
+    except Exception as ex:
+        db.rollback()
+        db.flush()
+    finally:
+        db.close()
+
+
     # print(serverList)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     # print(script_dir)
 
     input = open(script_dir + "/dsiprouter.nginx.tpl")
     output = open(script_dir + "/dsiprouter.nginx", "w")
-    output.write(input.read().replace("##SERVERLIST##", serverList))
+    output.write(input.read().replace("##SERVERLIST##", serverList).replace("##DOMAINREDIRECTS##", domain_redirect_list))
     output.close()
     input.close()
 
