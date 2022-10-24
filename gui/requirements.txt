@@ -5,7 +5,7 @@ cryptography
 dnspython
 docker
 docutils<0.17,>=0.12
-Flask==1.1.2
+Flask==2.2.2
 Flask_Script
 Flask_WTF
 itsdangerous==2.0.1
@@ -25,4 +25,4 @@ sphinxcontrib-httpdomain
 sphinx-rtd-theme
 SQLAlchemy
 twilio
-Werkzeug==2.0.2
+Werkzeug==2.2.2
