@@ -12,7 +12,7 @@ from copy import copy
 from collections import OrderedDict
 from importlib import reload
 from flask import Flask, render_template, request, redirect, jsonify, flash, session, url_for, send_from_directory, Blueprint
-from flask_script import Manager, Server
+# from flask_script import Manager, Server
 from flask_wtf.csrf import CSRFProtect
 from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import func, exc as sql_exceptions
