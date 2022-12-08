@@ -19,7 +19,7 @@ function install() {
 
     # Install Dependencies
     apt-get install -y curl wget sed gawk vim perl uuid-dev libssl-dev logrotate rsyslog \
-        libcurl4-openssl-dev libjansson-dev cmake firewalld certbot build-essential
+        libcurl4-openssl-dev libjansson-dev cmake firewalld certbot build-essential autoconf
 
     # create kamailio user and group
     mkdir -p /var/run/kamailio
