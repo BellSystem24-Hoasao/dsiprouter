@@ -4,8 +4,8 @@
 apt -y install openssl coreutils
 
 # Generate Root Certificate Private Key
-mkdir /tmp/stir-shaken-ca
-cd /tmp/stir-shaken-ca
+mkdir -p /etc/dsiprouter/certs/stirshaken/
+cd /etc/dsiprouter/certs/stirshaken/
 openssl ecparam -noout -name prime256v1 -genkey -out ca-key.pem
 
 
@@ -38,15 +38,19 @@ od -An -t x1 -w TNAuthList.der | sed -e 's/ /:/g' -e 's/^/1.3.6.1.5.5.7.1.26=DER
 
 
 # Generate a Certificate Signing Request, which includes our required TNAuthorizationList
+# SP = Service Provider
 openssl req -new -nodes -key sp-key.pem -keyform PEM \
-    -subj '/C=US/ST=VA/L=Somewhere/O=AcmeTelecom, Inc./OU=VOIP/CN=SHAKEN' \
+    -subj '/C=US/ST=MI/L=Detroit/O=dOpenSource/OU=Development/CN=SHAKEN' \
     -sha256 -config openssl.conf \
     -out sp-csr.pem
 
 
 # On the CA side, generate the certificate (User-CSR + CA-cert + CA-key => User-cert)
-openssl x509 -req -in sp-csr.pem -CA ../stir-shaken-ca/ca-cert.pem -CAkey ../stir-shaken-ca/ca-key.pem -CAcreateserial \
+openssl x509 -req -in sp-csr.pem -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial \
   -days 825 -sha256 -extfile openssl.conf -extensions v3_req -out sp-cert.pem
 
 #  verify that the SP certificate contains the TNAuthList extension
 openssl x509 -in sp-cert.pem -text -noout
+
+
+cp sp-cert.pem /etc/dsiprouter/certs/stirshaken/public/stirshaken-key.pem
